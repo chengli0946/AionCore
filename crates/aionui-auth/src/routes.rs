@@ -1120,6 +1120,15 @@ async fn webui_change_password_handler(
 
     let user = resolve_webui_admin(&*state.user_repo).await?;
 
+    // Verify current password
+    let Some(password_hash) = user.password_hash.as_deref() else {
+        return Err(ApiError::Unauthorized("Current password is incorrect".into()));
+    };
+    let valid = verify_password_timed(&req.current_password, password_hash).await?;
+    if !valid {
+        return Err(ApiError::Unauthorized("Current password is incorrect".into()));
+    }
+
     let password = req.new_password;
     let new_hash = tokio::task::spawn_blocking(move || hash_password(&password))
         .await

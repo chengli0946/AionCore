@@ -165,10 +165,10 @@ pub enum InternalAuthErrorCode {
 
 /// Change password request body for `POST /api/webui/change-password`.
 ///
-/// No current_password field — this endpoint is local-mode only and assumes
-/// the caller is the trusted Electron main process.
+/// Requires current_password for security, even in local mode.
 #[derive(Debug, Deserialize)]
 pub struct WebuiChangePasswordRequest {
+    pub current_password: String,
     pub new_password: String,
 }
 
